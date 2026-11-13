@@ -64,11 +64,14 @@ p{margin:.5em 0}
 .wins i.lit{background:var(--moon);box-shadow:0 0 12px rgba(246,231,168,.7)}
 
 /* 進みぐあい */
-.progress{display:flex;gap:6px;justify-content:center;margin:2px 0 14px}
+.progress{display:flex;gap:5px;justify-content:center;margin:2px 0 14px}
 .progress span{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:.8rem;
   background:var(--bg2);border:1px solid var(--line);color:var(--muted)}
 .progress span.done{background:var(--moon);color:#2a2410;border-color:var(--moon)}
 .progress span.now{border-color:var(--accent);color:var(--ink);box-shadow:0 0 0 2px rgba(143,211,255,.25)}
+.progress span.eight{border-style:dashed}
+.progress span.done.now{color:#2a2410;box-shadow:0 0 0 2px var(--accent)}
+.mode-chip{display:block;text-align:center;font-size:.75rem;color:var(--ng);letter-spacing:.1em;margin:-8px 0 8px}
 
 .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
 .tale{background:linear-gradient(180deg,#1b1f3f,#171b37);border-color:#3a3f74}
@@ -76,16 +79,35 @@ p{margin:.5em 0}
 .case-no{font-size:.85rem;color:var(--accent);letter-spacing:.12em}
 .pic{font-size:2.4rem;text-align:center;line-height:1.2;margin:4px 0}
 
+/* 決め手を光らせる */
+mark.key{color:inherit;border-radius:4px;padding:0 2px;
+  background:linear-gradient(transparent 0, rgba(246,231,168,.0) 0);
+  animation:keyglow 1.6s ease .4s both}
+@keyframes keyglow{
+  0%{background:transparent;box-shadow:none}
+  40%{background:rgba(246,231,168,.55);box-shadow:0 0 18px rgba(246,231,168,.9);color:#2a2410}
+  100%{background:rgba(246,231,168,.22);box-shadow:0 0 8px rgba(246,231,168,.35);color:var(--ink)}
+}
+.tale.again .label::after{content:"　決め手は、ここ";color:var(--accent)}
+
+/* 顔アイコン */
+.face{width:56px;height:56px;flex:none;border-radius:50%;display:block;overflow:hidden}
+.face.big{width:120px;height:120px;margin:4px auto}
+.face.glowring{box-shadow:0 0 0 3px var(--moon),0 0 24px rgba(246,231,168,.8);animation:ring 1.6s ease .3s both}
+@keyframes ring{0%{box-shadow:none}50%{box-shadow:0 0 0 5px var(--moon),0 0 40px rgba(246,231,168,1)}}
+
 /* 証言カード */
 .wlist{display:flex;flex-direction:column;gap:10px;margin:10px 0}
-.witness{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;
+.witness{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;
   background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px 14px;transition:.15s}
+.witness .wtext{flex:1;min-width:0}
 .witness .who{font-size:.85rem;color:var(--muted)}
 .witness .who b{color:var(--ink);font-size:1rem;margin-right:4px}
 .witness .say{margin-top:2px}
 .witness.sel{border-color:var(--accent);background:var(--card2)}
 .witness.cleared{opacity:.5;cursor:default}
 .witness.cleared .who::after{content:"　うそはついていない";color:var(--ok);font-size:.8rem}
+.witness.cleared.nope .who::after{content:"　ちがうようだ"}
 .witness.shake{animation:shake .4s}
 @keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
 
@@ -95,9 +117,15 @@ p{margin:.5em 0}
 /* タネあかし */
 .reveal h3{font-size:.85rem;letter-spacing:.12em;color:var(--moon);margin-top:12px}
 .reveal h3:first-child{margin-top:0}
-.lie{background:#2b1d2a;border:1px solid #5a3550;border-radius:12px;padding:10px 12px;margin-top:6px}
+.culprit{display:flex;gap:12px;align-items:center}
+.lie{background:#2b1d2a;border:1px solid #5a3550;border-radius:12px;padding:10px 12px;margin-top:8px}
 .lie .x{color:var(--ng)}
 .lie .o{color:var(--ok)}
+
+/* 八つめ：答えのあと */
+.trace{list-style:none;display:flex;flex-direction:column;gap:10px}
+.trace li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.92rem}
+.trace li .t{font-size:.78rem;color:var(--accent);letter-spacing:.08em}
 
 /* 手紙 */
 .letter{background:#f4ecd8;color:#3a3020;border-radius:6px;padding:22px 20px;margin:14px 0;
@@ -111,6 +139,8 @@ p{margin:.5em 0}
 .btn{display:block;width:100%;text-align:center;text-decoration:none;font:inherit;font-weight:bold;cursor:pointer;
   padding:14px 16px;border-radius:999px;border:1px solid var(--line);background:var(--bg2);color:var(--ink)}
 .btn.primary{background:var(--moon);color:#2a2410;border-color:var(--moon)}
+.btn.hard{background:#2a1630;border-color:#6b3a6e;color:#ffd0e6}
+.btn .sub{display:block;font-size:.75rem;font-weight:normal;opacity:.85}
 .btn.x{background:#000;color:#fff;border-color:#444}
 .btn:disabled{opacity:.4;cursor:default}
 .btn:active:not(:disabled){transform:scale(.98)}
@@ -119,19 +149,25 @@ p{margin:.5em 0}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="1.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter></defs>
+</svg>
 <main id="app"></main>
 
 <script>
 /* =========================================================
    7つの事件
-   ・tale：怪談の説明（この中の事実と食いちがう証言をした人が犯人）
+   ・tale：怪談の説明。[[ ]] でかこんだところが決め手（タネあかしで光る）
    ・culprit：犯人の番号（0〜2）
-   ・lie：うそと事実の食いちがい
+   ・how：[[ ]] でかこんだところが古川さんの場面（最後の問題のあとで光る）
+   ・hard：むずかしいモードで差しかえる中身（1問だけ、手がかりが顔の絵の中にある）
    ========================================================= */
 const CASES = [
 {
   title:'動く人体模型', icon:'🦴',
-  tale:'夜7時、理科室の人体模型が、3階の6年2組の前の廊下に立っていたという。<br>でもこの模型は、前の日に左足が外れてしまい、修理のため左足だけ理科の先生の机にしまってあった。',
+  tale:'夜7時、理科室の人体模型が、3階の6年2組の前の廊下に立っていたという。<br>でもこの模型は、[[前の日に左足が外れてしまい、修理のため左足だけ理科の先生の机にしまってあった]]。',
   witnesses:[
     {name:'宮本ゆい', role:'6年1組', say:'7時ごろ、6年2組の前の廊下に、白っぽい人かげが立っていたの。'},
     {name:'大川そうた', role:'6年2組', say:'模型が、両足でスタスタ階段を上がっていくのを見たんだ！'},
@@ -141,11 +177,11 @@ const CASES = [
   hint:'怪談の説明に、その夜の模型の<b>体のこと</b>が書いてあったね。その体ではできないことを言っている人は？',
   lie:{x:'「両足でスタスタ階段を上がっていった」', o:'模型の左足は、先生の机の中。両足で歩けるはずがない。'},
   why:'あしたはクラス対抗リレー。6年2組のみんなを元気づけたくて、模型に赤いハチマキをしめて「応援団長」にしようと思いついた。',
-  how:'放課後、友だちと2人で模型をかかえ、そっと階段を上がって教室の前に立たせた。とちゅうで守衛の古川さんに会ったけれど、古川さんは「落とすなよ」と笑っただけだった。「模型が歩いた」と話を大きくしたのは、自分たちが運んだとばれないため。',
+  how:'放課後、友だちと2人で模型をかかえて、そっと階段を上がった。[[とちゅうで見回りの守衛さんとすれちがったけれど、「落とすなよ」と言われただけだった]]。教室の前に模型を立たせ、ハチマキをしめて完成。「模型が歩いた」と話を大きくしたのは、自分たちが運んだとばれないため。',
 },
 {
   title:'夜中のピアノ', icon:'🎹',
-  tale:'夜7時、だれもいないはずの校舎から、ピアノの曲が聞こえてきた。<br>けれど音楽室のピアノは、あしたの合唱コンクールのため、昼のうちに体育館の舞台へ運ばれていた。',
+  tale:'夜7時、だれもいないはずの校舎から、ピアノの曲が聞こえてきた。<br>けれど音楽室のピアノは、あしたの合唱コンクールのため、[[昼のうちに体育館の舞台へ運ばれていた]]。',
   witnesses:[
     {name:'石田れん', role:'5年', say:'体育館の前を通ったら、中からピアノの音がしたよ。'},
     {name:'野村さき', role:'6年', say:'同じところを、何回も何回もくり返していたの。'},
@@ -155,11 +191,11 @@ const CASES = [
   hint:'その夜、ピアノは<b>どこに</b>あった？　説明を読みなおそう。',
   lie:{x:'「音楽室のピアノのふたが開いていた」', o:'ピアノは昼のうちに体育館へ。その夜の音楽室に、ピアノはなかった。'},
   why:'あおいは合唱コンクールの伴奏係。本番でまちがえるのがこわくて、本番と同じ舞台のピアノで、こっそり練習しておきたかった。',
-  how:'守衛の古川さんにたのんで、体育館を30分だけ開けてもらった。苦手なところを何度もくり返したのが「夜中のピアノ」の正体。「音楽室で見た」とうそをついたのは、体育館での練習を秘密にしておきたかったから。',
+  how:'[[守衛の古川さんにたのんで体育館を30分だけ開けてもらい]]、苦手なところを何度もくり返した。それが「夜中のピアノ」の正体。「音楽室で見た」とうそをついたのは、体育館での練習を秘密にしておきたかったから。',
 },
 {
   title:'目が動く肖像画', icon:'🖼️',
-  tale:'図書室の「初代校長の肖像画」の目が、夕方ぎょろりと動くという。<br>肖像画は額縁がこわれて修理に出していて、今は絵の紙だけが、壁の古い換気口の上にテープで貼ってある。',
+  tale:'図書室の「初代校長の肖像画」の目が、夕方ぎょろりと動くという。<br>[[肖像画は額縁がこわれて修理に出していて、今は絵の紙だけ]]が、壁の古い換気口の上にテープで貼ってある。',
   witnesses:[
     {name:'小林みお', role:'図書委員・5年', say:'金色の額縁が、カタカタゆれていたんだよ。'},
     {name:'上田かいと', role:'6年', say:'目が動いたのは、図書室が閉まる5時の少し前だった。'},
@@ -169,11 +205,11 @@ const CASES = [
   hint:'肖像画は今、<b>どんなすがた</b>で壁にある？',
   lie:{x:'「金色の額縁がカタカタゆれていた」', o:'額縁は修理中。壁にあるのは、テープで貼った絵の紙だけ。'},
   why:'校庭で、雨にぬれた子ネコを見つけた。飼い主が見つかるまで、どこかにかくしてあげたかった。',
-  how:'肖像画のうしろの換気口に、タオルをしいて子ネコをかくまった。子ネコが動くと紙がふくらんで目が動いたように見え、紙の小さな穴から子ネコの目が黄色く光った。「こわい肖像画」のうわさを広めたのは、だれも近づかないようにするため。いつのまにか、換気口の前にはキャットフードが置かれるようになった。夜の図書室を見回るのは、守衛の古川さんだけだ。',
+  how:'肖像画のうしろの換気口に、タオルをしいて子ネコをかくまった。給食ののこりのパンと、[[古川さんがわけてくれたキャットフード]]で、子ネコはすぐに元気になった。子ネコが動くと紙がふくらんで目が動いたように見え、紙の小さな穴から子ネコの目が黄色く光った。「こわい肖像画」のうわさを広めたのは、だれも近づかないようにするため。',
 },
 {
   title:'水が流れるトイレ', icon:'🚽',
-  tale:'夕方6時、3階のトイレから、だれもいないのに水の流れる音がする。<br>そのトイレは今週、水道工事のため個室の「流す」レバーがすべて止められていて、水が出るのは手洗い場の水道だけだ。',
+  tale:'夕方6時、3階のトイレから、だれもいないのに水の流れる音がする。<br>そのトイレは今週、水道工事のため[[個室の「流す」レバーがすべて止められていて、水が出るのは手洗い場の水道だけ]]だ。',
   witnesses:[
     {name:'原田ゆうま', role:'5年', say:'6時ちょうどに音がして、10分くらいで止まるんだ。'},
     {name:'松本ちひろ', role:'生き物係・6年', say:'個室の中で、ジャーッて流す音が何度もしたの。'},
@@ -183,11 +219,11 @@ const CASES = [
   hint:'工事中のトイレで、<b>水が出るのはどこだけ</b>だった？',
   lie:{x:'「個室の中で、ジャーッと流す音がした」', o:'個室のレバーは工事で止まっている。水が出るのは手洗い場だけ。'},
   why:'校舎裏の古い池が、来月うめ立てられると聞いた。池にすむメダカたちを、なんとか助けたかった。',
-  how:'メダカを空き教室の水そうにうつし、毎日6時、3階の手洗い場でバケツに水をくんで水を替えていた。廊下のしずくはバケツからこぼれた水。「個室で流す音」と言ったのは、手洗い場を調べられないため。6時は守衛の古川さんが3階を見回る時間なのに、なぜか一度も見つからなかった。',
+  how:'メダカを3階の空き教室の水そうにうつし、毎日6時、手洗い場でバケツに水をくんで水を替えた。[[空き教室のカギは、「そうじをします」と言って古川さんから借りていた]]。廊下のしずくは、バケツからこぼれた水。「個室で流す音」と言ったのは、手洗い場を調べられないため。',
 },
 {
   title:'増える階段', icon:'🪜',
-  tale:'西階段は、ふだんは12段。ところが夜に数えると、13段あるという。<br>その週の西階段は工事つづきで、手すりはペンキぬりたて、1階の入口は防火シャッターが下りたまま、2階の踊り場には新しい掲示板がとりつけられたところだった。',
+  tale:'西階段は、ふだんは12段。ところが夜に数えると、13段あるという。<br>その週の西階段は工事つづきで、手すりはペンキぬりたて、[[1階の入口は防火シャッターが下りたまま]]、2階の踊り場には新しい掲示板がとりつけられたところだった。',
   witnesses:[
     {name:'西村けんと', role:'演劇部・6年', say:'1階から上がりながら数えたら、13段あった！'},
     {name:'高橋まな', role:'5年', say:'2階から下りていったら、いちばん下の段だけ、ふみ心地がちがった。'},
@@ -197,11 +233,11 @@ const CASES = [
   hint:'その週、西階段には<b>どこから</b>入れた？',
   lie:{x:'「1階から上がりながら数えた」', o:'1階の入口は防火シャッターでふさがれていた。1階からは入れない。'},
   why:'文化祭の劇『十三段目のひみつ』のために、本物そっくりの木の段を作った。お客さんが本物とまちがえるか、どうしてもためしてみたかった。',
-  how:'夕方、2階から木の段を運び下ろして、階段のいちばん下に置いた。いいかげんな話で怪談をもりあげたせいで、入れないはずの1階から上がったことにしてしまった。次の朝、段を回収しに行くと、段はもう階段のわきに片づけてあった。だれが片づけたのかは、わからない。',
+  how:'夕方、2階から木の段を運び下ろして、階段のいちばん下に置いた。怪談らしく話をもったせいで、入れないはずの1階から上がったことにしてしまった。次の朝、段を回収しに行くと、段は[[「落としもの　守衛室」の札をつけて]]、階段のわきに立てかけてあった。',
 },
 {
   title:'理科室で光る何か', icon:'✨',
-  tale:'夜、理科室の中で、青白い光がちらちら光るという。<br>その週の理科室は、週末の研究発表会の準備中。実験台にはビーカーがならび、窓という窓には黒い暗幕がしめきられ、黒板には先生のかいた星座の図が残っていた。',
+  tale:'夜、理科室の中で、青白い光がちらちら光るという。<br>その週の理科室は、週末の研究発表会の準備中。実験台にはビーカーがならび、[[窓という窓には黒い暗幕がしめきられ]]、黒板には先生のかいた星座の図が残っていた。',
   witnesses:[
     {name:'青木ななみ', role:'5年', say:'理科室のドアのすき間から、青い光がもれていたの。'},
     {name:'坂本はると', role:'4年', say:'光は、小さな点がたくさん集まったみたいだった。'},
@@ -211,11 +247,18 @@ const CASES = [
   hint:'理科室の窓は、<b>外から中が見える</b>状態だった？',
   lie:{x:'「校庭から、窓の中で光が動いているのが見えた」', o:'窓は暗幕で全部しめきられていた。外から中の光は見えない。'},
   why:'同じクラスの友だちが、長く入院している。病室から星が見られないと聞いて、光る星空をプレゼントしたかった。',
-  how:'光る絵の具で、大きな紙に星座をかいた。光りぐあいを確かめるには、まっくらな理科室がぴったり。「校庭から見た」と言ったのは、自分が理科室の中にいたことをかくすため。守衛の古川さんは、その週だけ、なぜか理科室の見回りを最後に回していた。星空は今、病室の天井で光っている。',
+  how:'光る絵の具で、大きな紙に星座をかいた。光りぐあいを確かめるには、まっくらな理科室がぴったり。[[夜の見回りの守衛さんは、ドアのすき間の光に気づいたようだったけれど、そのまま通りすぎていった]]。「校庭から見た」と言ったのは、自分が理科室の中にいたことをかくすため。星空は今、病室の天井で光っている。',
+  // むずかしいモード：説明文から暗幕を消し、手がかりを犯人の顔の絵に移す
+  hard:{
+    tale:'夜、理科室の中で、青白い光がちらちら光るという。<br>その週の理科室は、週末の研究発表会の準備中。実験台にはビーカーがならび、黒板には先生のかいた星座の図が残っていた。',
+    paint:2,
+    lie:{x:'「校庭から見上げた」', o:'いつきのほっぺには、青白く光る絵の具の点。校庭にいたのではなく、光る何かのすぐそばにいた。'},
+    key:'いつきのほっぺの、青白く光る点',
+  },
 },
 {
   title:'体育館で弾むボール', icon:'🏀',
-  tale:'夜7時、体育館から「ダン、ダン」とボールの弾む音がする。<br>その日の体育館は、昼に床のワックスがけが終わったばかり。舞台には合唱コンクールのひな段が組まれ、ボールは空気の点検で、ひとつ残らず業者に出されていた。',
+  tale:'夜7時、体育館から「ダン、ダン」とボールの弾む音がする。<br>その日の体育館は、昼に床のワックスがけが終わったばかり。舞台には合唱コンクールのひな段が組まれ、[[ボールは空気の点検で、ひとつ残らず業者に出されていた]]。',
   witnesses:[
     {name:'山口しおん', role:'6年', say:'音はゆっくりで、ときどき止まって、また始まったよ。'},
     {name:'斎藤ふうか', role:'バスケ部・6年', say:'体育館のボールかごから、ボールが1個へっていたの。'},
@@ -225,12 +268,25 @@ const CASES = [
   hint:'その日、体育館に<b>ボールはいくつ</b>あった？',
   lie:{x:'「ボールかごから、ボールが1個へっていた」', o:'その日、体育館のボールは全部点検に出ていた。かごはからっぽ。'},
   why:'来週はクラスのボール大会。ドリブルが苦手な友だちが「みんなに笑われたくない」となやんでいた。',
-  how:'自分のボールを家から持ってきて、夜の体育館で友だちとこっそり特訓した。ゆっくりで、ときどき止まる音は、練習中の友だちのドリブル。「かごからへっていた」とうそをついたのは、友だちとの約束を守って、特訓を秘密にするため。体育館のカギは、守衛の古川さんが開けてくれた。',
+  how:'自分のボールを家から持ってきて、夜の体育館で友だちとこっそり特訓した。ゆっくりで、ときどき止まる音は、練習中の友だちのドリブル。[[帰りぎわ、カギをしめに来た古川さんが「がんばれよ」と手をふった]]。「かごからへっていた」とうそをついたのは、友だちとの約束を守って、特訓を秘密にするため。',
 },
 ];
 
+/* 八つめの不思議（最終問題） */
+const EIGHTH = {
+  question:'七つの事件すべてに関わっていた人物は？',
+  choices:[
+    {name:'理科の先生', role:'その一・その六に登場', face:{hc:'#3a3a3a', glasses:1, coat:1, adult:1, skin:1}},
+    {name:'大川そうた', role:'6年2組・その一の犯人'},
+    {name:'守衛の古川さん', role:'夜の学校の見回り', face:{hc:'#c9c9c9', cap:1, mustache:1, adult:1, skin:0}},
+    {name:'新聞部の部長', role:'この特集をまかせた人', face:{hair:'bob', hc:'#2a1f18', glasses:1, skin:2}},
+  ],
+  answer:2,
+  hint:'七つのタネあかしの<b>「どうやって」</b>を思い出そう。毎回、さりげなく出てきた人がいる。',
+};
+
 const FINALE = {
-  intro:'七つめのタネをあかした次の朝。新聞部の部室の机に、古い封筒が置いてあった。中には、色あせた白黒写真が1枚と、手紙が入っていた。写真には、人体模型をかこんで笑う7人の子どもがうつっている。',
+  intro:'次の朝。新聞部の部室の机に、古い封筒が置いてあった。中には、色あせた白黒写真が1枚と、手紙が入っていた。写真には、人体模型をかこんで笑う7人の子どもがうつっている。',
   letter:[
     '新聞部のみなさんへ',
     '七つのタネあかし、おみごとでした。じつは、わたしはぜんぶ知っていました。夜の学校を見回っているのは、わたしですからね。',
@@ -240,18 +296,73 @@ const FINALE = {
     '七不思議を、これからもよろしく。',
   ],
   sign:'守衛　古川',
-  eighth:'八つめの不思議<br><b>この学校の怪談は、いつも、だれかを思う気持ちでできている。</b>',
+  eighth:'八つめの不思議の、ほんとうのこたえ<br><b>この学校の怪談は、いつも、だれかを思う気持ちでできている。</b>',
 };
+
+/* =========================================================
+   顔アイコン（名前から髪型・色を決める。override で指定もできる）
+   ========================================================= */
+const SKINS = ['#f1d2b6','#f6dcc4','#e6bf9c'];
+const HAIRC = ['#2a1f18','#3b2a1e','#1c1c24','#5a3b24','#4a2e2e'];
+const SHIRTS = ['#4f6bd8','#d86f6f','#5fb38a','#c9a24a','#8a6fd8','#4fb0c6'];
+const STYLES = ['short','bob','pony','spiky'];
+function hashName(s){ let h=7; for (const ch of s) h = (h*31 + ch.codePointAt(0)) >>> 0; return h; }
+function faceSVG(name, o={}, cls=''){
+  const h = hashName(name);
+  const skin = SKINS[o.skin ?? (h % 3)];
+  const hc = o.hc || HAIRC[(h>>3) % HAIRC.length];
+  const shirt = o.coat ? '#eef0f4' : SHIRTS[(h>>6) % SHIRTS.length];
+  const style = o.hair || (o.adult ? 'short' : STYLES[(h>>9) % STYLES.length]);
+  const glasses = o.glasses ?? ((h>>12) % 6 === 0);
+  let back='', top='';
+  if (style==='bob')   back = `<path d="M12 36 Q11 12 30 12 Q49 12 48 36 L48 46 L41 46 L41 30 L19 30 L19 46 L12 46Z" fill="${hc}"/>`;
+  if (style==='pony')  back = `<ellipse cx="47" cy="31" rx="5" ry="10" fill="${hc}"/>`;
+  if (style==='spiky') top = `<path d="M13 32 L15 18 L20 22 L23 12 L28 19 L32 11 L36 19 L41 13 L43 22 L47 32 Q42 22 30 22 Q18 22 13 32Z" fill="${hc}"/>`;
+  else                 top = `<path d="M13 33 Q12 13 30 13 Q48 13 47 33 Q44 22 30 22 Q16 22 13 33Z" fill="${hc}"/>`;
+  const cap = o.cap ? `<path d="M12 25 Q30 6 48 25Z" fill="#26304f"/><rect x="10" y="23" width="40" height="5" rx="2.5" fill="#1b2340"/><circle cx="30" cy="17" r="2.6" fill="#e2c55a"/>` : '';
+  const mus = o.mustache ? `<path d="M24 39.5 Q30 36.5 36 39.5 Q30 41.5 24 39.5Z" fill="#a9a9a9"/>` : '';
+  const gl = glasses ? `<g fill="none" stroke="#dfe6f5" stroke-width="1.4"><circle cx="24" cy="33" r="4.4"/><circle cx="36" cy="33" r="4.4"/><path d="M28.4 33 L31.6 33"/></g>` : '';
+  const collar = o.coat ? `<path d="M19 60 L25 49 L30 55 L35 49 L41 60Z" fill="#cfd5e2"/>` : '';
+  const paint = o.paint ? `<g filter="url(#glow)" fill="#8fe6ff"><circle cx="40.5" cy="38.5" r="1.9"/><circle cx="43.6" cy="36" r="1.4"/><circle cx="39" cy="41.6" r="1.2"/><circle cx="43.4" cy="40.6" r="1"/></g>` : '';
+  return `<svg class="face ${cls}" viewBox="0 0 60 60" role="img" aria-label="${name}の顔">
+    <circle cx="30" cy="30" r="30" fill="#2a3160"/><g transform="translate(-7.5 -6.6) scale(1.25)">${back}
+    <path d="M10 62 Q30 42 50 62Z" fill="${shirt}"/>${collar}
+    <circle cx="30" cy="33" r="15.5" fill="${skin}"/>${top}${cap}
+    <circle cx="24" cy="33" r="1.8" fill="#222"/><circle cx="36" cy="33" r="1.8" fill="#222"/>
+    <ellipse cx="21" cy="38" rx="2.4" ry="1.4" fill="#f2a0a0" opacity=".5"/><ellipse cx="39" cy="38" rx="2.4" ry="1.4" fill="#f2a0a0" opacity=".5"/>
+    ${mus}<path d="M26.5 41 Q30 43.5 33.5 41" fill="none" stroke="#7a3b3b" stroke-width="1.3" stroke-linecap="round"/>${gl}${paint}</g>
+  </svg>`;
+}
 
 /* =========================================================
    ゲームの進行
    ========================================================= */
 const app = document.getElementById('app');
-const S = { screen:'title', i:0, sel:null, cleared:[], misses:0, caseMisses:0, hintOn:false, solved:0 };
+const S = { screen:'title', hard:false, i:0, sel:null, cleared:[], misses:0, hintOn:false, solved:0 };
+
+const plain = t => t.replace(/\[\[|\]\]/g, '');
+const lit   = t => t.replace(/\[\[(.*?)\]\]/g, '<mark class="key">$1</mark>');
+const KANJI = '一二三四五六七';
+
+// むずかしいモードの差しかえを反映した、その問題の中身
+function caseOf(i){
+  const c = CASES[i];
+  return (S.hard && c.hard) ? {...c, ...c.hard, hardCase:true} : c;
+}
 
 function progressHTML(){
-  return `<div class="progress" aria-label="進みぐあい">${CASES.map((c,k)=>
-    `<span class="${k<S.solved?'done':''} ${k===S.i&&S.screen!=='finale'&&S.screen!=='result'?'now':''}">${k+1}</span>`).join('')}</div>`;
+  const now = S.screen==='eighth' ? 7 : S.i;
+  return `<div class="progress" aria-label="進みぐあい">${[...KANJI,'八'].map((k,n)=>
+    `<span class="${n<S.solved?'done':''} ${n===now?'now':''} ${n===7?'eight':''}">${n<7?n+1:k}</span>`).join('')}</div>
+    ${S.hard?'<span class="mode-chip">むずかしいモード</span>':''}`;
+}
+
+function witnessCards(list, faceOf, nopeLabel){
+  return `<div class="wlist">${list.map((w,k)=>{
+    const cl = S.cleared.includes(k);
+    return `<button class="witness ${S.sel===k?'sel':''} ${cl?'cleared':''} ${cl&&nopeLabel?'nope':''}" data-w="${k}" ${cl?'disabled':''}>
+      ${faceOf(w,k)}
+      <div class="wtext"><div class="who"><b>${w.name}</b>${w.role}</div>${w.say?`<div class="say">「${w.say}」</div>`:''}</div></button>`;}).join('')}</div>`;
 }
 
 function rTitle(){
@@ -265,7 +376,10 @@ function rTitle(){
       <p>● 3人のうち<b>1人だけがうそ</b>をついている。その人が、怪談をしかけた犯人。</p>
       <p>● うそは、<b>怪談の説明と食いちがう</b>ところで見やぶれる。</p>
     </div>
-    <div class="actions"><button class="btn primary" data-act="start">夜の学校へ ▶</button></div>
+    <div class="actions">
+      <button class="btn primary" data-act="start" data-mode="normal">ふつうモード ▶<span class="sub">まちがえるとヒントが出る</span></button>
+      <button class="btn hard" data-act="start" data-mode="hard">むずかしいモード ▶<span class="sub">ヒントなし。1問だけ、手がかりが文章ではなく絵の中に</span></button>
+    </div>
   </div>`;
 }
 
@@ -276,44 +390,69 @@ function rIntro(){
       <p>きみは新聞部の新入部員。</p>
       <p>部長から最初の仕事をわたされた。<br>「学校新聞の特集は『七不思議』。ただの怪談じゃつまらない。<b>タネをあかしてきて</b>」</p>
       <p>うわさでは、七つの怪談には、どれも目撃者がいるらしい。<br>でも、その中には、ほんとうのことを言っていない人がまじっている……。</p>
+      ${S.hard?'<p class="small" style="color:#ffd0e6">むずかしいモード：まちがえてもヒントは出ない。どこかの1問は、文章をいくら読んでも決め手が見つからない。そのときは、<b>目撃者の顔</b>をよく見て。</p>':''}
     </div>
     <div class="actions"><button class="btn primary" data-act="toCase">ひとつめの怪談へ ▶</button></div>
   </div>`;
 }
 
 function rCase(){
-  const c = CASES[S.i];
+  const c = caseOf(S.i);
   return `<div class="fade">
     ${progressHTML()}
-    <div class="case-no center">七不思議 その${'一二三四五六七'[S.i]}</div>
+    <div class="case-no center">七不思議 その${KANJI[S.i]}</div>
     <h2 class="center">${c.icon} ${c.title}</h2>
-    <div class="box tale"><div class="label">怪談</div><p>${c.tale}</p></div>
+    <div class="box tale"><div class="label">怪談</div><p>${plain(c.tale)}</p></div>
     <p class="small muted">目撃者の証言（うそをついている1人をえらぼう）</p>
-    <div class="wlist">${c.witnesses.map((w,k)=>{
-      const cl = S.cleared.includes(k);
-      return `<button class="witness ${S.sel===k?'sel':''} ${cl?'cleared':''}" data-w="${k}" ${cl?'disabled':''}>
-        <div class="who"><b>${w.name}</b>${w.role}</div>
-        <div class="say">「${w.say}」</div></button>`;}).join('')}</div>
-    ${S.hintOn?`<div class="box hint fade"><p>💡 <b>ヒント</b></p><p>${c.hint}</p></div>`:''}
+    ${witnessCards(c.witnesses, (w,k)=>faceSVG(w.name, {paint: c.hardCase && c.paint===k}))}
+    ${S.hintOn&&!S.hard?`<div class="box hint fade"><p>💡 <b>ヒント</b></p><p>${c.hint}</p></div>`:''}
     <div class="actions"><button class="btn primary" data-act="accuse" ${S.sel===null?'disabled':''}>この人がしかけた犯人だ！</button></div>
   </div>`;
 }
 
 function rReveal(){
-  const c = CASES[S.i], w = c.witnesses[c.culprit];
+  const c = caseOf(S.i), w = c.witnesses[c.culprit];
   const last = S.i === CASES.length-1;
+  const keyBox = c.hardCase
+    ? `<div class="box tale"><div class="label">怪談</div><p>${plain(c.tale)}</p><p class="small muted">文章の中に、決め手はなかった。</p></div>
+       <div class="box center">${faceSVG(w.name,{paint:1},'big glowring')}<p class="small"><mark class="key">決め手：${c.key}</mark></p></div>`
+    : `<div class="box tale again"><div class="label">怪談</div><p>${lit(c.tale)}</p></div>`;
   return `<div class="fade">
     ${progressHTML()}
-    <div class="pic">${c.icon}</div>
-    <h2 class="center">タネあかし<br><span class="small muted">${c.title}</span></h2>
+    <h2 class="center">${c.icon} タネあかし<br><span class="small muted">${c.title}</span></h2>
+    ${keyBox}
     <div class="box reveal">
       <h3>だれが</h3>
-      <p><b>${w.name}</b>（${w.role}）</p>
+      <div class="culprit">${faceSVG(w.name,{paint:c.hardCase})}<p><b>${w.name}</b>（${w.role}）</p></div>
       <div class="lie small"><span class="x">うそ：</span>${c.lie.x}<br><span class="o">事実：</span>${c.lie.o}</div>
       <h3>なぜ</h3><p>${c.why}</p>
-      <h3>どうやって</h3><p>${c.how}</p>
+      <h3>どうやって</h3><p>${plain(c.how)}</p>
     </div>
     <div class="actions"><button class="btn primary" data-act="next">${last?'七つのタネをあかした ▶':'つぎの怪談へ ▶'}</button></div>
+  </div>`;
+}
+
+function rEighth(){
+  return `<div class="fade">
+    ${progressHTML()}
+    <div class="case-no center">最後の問題</div>
+    <h2 class="center">八つめの不思議</h2>
+    <div class="box tale"><div class="label">なぞ</div><p>七つの怪談のタネは、ぜんぶあかした。<br>でも、ひとつだけ、まだ説明のつかないことがある。</p><p><b>${EIGHTH.question}</b></p></div>
+    ${witnessCards(EIGHTH.choices, w=>faceSVG(w.name, w.face||{}), true)}
+    ${S.hintOn&&!S.hard?`<div class="box hint fade"><p>💡 <b>ヒント</b></p><p>${EIGHTH.hint}</p></div>`:''}
+    <div class="actions"><button class="btn primary" data-act="accuse8" ${S.sel===null?'disabled':''}>この人だ！</button></div>
+  </div>`;
+}
+
+function rEighthOk(){
+  const f = EIGHTH.choices[EIGHTH.answer];
+  return `<div class="fade">
+    ${progressHTML()}
+    <div class="center">${faceSVG(f.name, f.face, 'big glowring')}</div>
+    <h2 class="center">守衛の古川さん</h2>
+    <p class="center muted small">七つの事件の「どうやって」を、もういちど。</p>
+    <ul class="trace">${CASES.map((c,k)=>`<li><div class="t">その${KANJI[k]}　${c.title}</div>${lit(c.how.match(/[^。]*\[\[.*?\]\][^。]*。?/)[0])}</li>`).join('')}</ul>
+    <div class="actions"><button class="btn primary" data-act="finale">次の朝 ▶</button></div>
   </div>`;
 }
 
@@ -322,7 +461,6 @@ function rFinale(){
     <div class="pic">✉️</div>
     <p>${FINALE.intro}</p>
     <div class="letter">${FINALE.letter.map(l=>`<p>${l}</p>`).join('')}<p class="sign">${FINALE.sign}</p></div>
-    <p class="muted small">そういえば、七つの事件のどれにも、守衛の古川さんがいた。模型を運ぶ子に笑いかけ、体育館のカギを開け、換気口の前にキャットフードを置き、木の段を片づけ、見回りの時間をずらして——。</p>
     <div class="eighth">${FINALE.eighth}</div>
     <div class="actions"><button class="btn primary" data-act="result">けっかを見る ▶</button></div>
   </div>`;
@@ -337,7 +475,7 @@ function rankOf(m){
 
 function shareURL(){
   const lines = [
-    '『七不思議のタネあかし』で、七つの怪談のタネをぜんぶあかしました！',
+    `『七不思議のタネあかし』${S.hard?'（むずかしいモード）':''}で、八つの不思議をぜんぶあかしました！`,
     `まちがい ${S.misses}回／称号：${rankOf(S.misses)}`,
     '#七不思議のタネあかし',
   ];
@@ -349,59 +487,69 @@ function rResult(){
   return `<div class="fade center">
     <div class="night" style="height:170px"><div class="stars"></div><div class="moon"></div>
       <div class="school"><div class="wins">${'<i class="lit"></i>'.repeat(7)}</div></div></div>
-    <h2>七不思議、ぜんぶタネあかし！</h2>
+    <h2>八つの不思議、ぜんぶタネあかし！</h2>
     <div class="box result">
+      ${S.hard?'<p class="small" style="color:#ffd0e6">むずかしいモード</p>':''}
       <p>まちがい <b>${S.misses}</b> 回</p>
       <p>称号：<b>${rankOf(S.misses)}</b></p>
     </div>
     <div class="actions">
       <a class="btn x" href="${shareURL()}" target="_blank" rel="noopener" data-share>𝕏 結果をシェア</a>
       <p class="small muted">シェア文には、答えは入りません。</p>
+      ${S.hard?'':'<button class="btn hard" data-act="restartHard">むずかしいモードに挑戦</button>'}
       <button class="btn primary" data-act="restart">もういちど はじめから</button>
     </div>
   </div>`;
 }
 
 function render(){
-  const fn = {title:rTitle, intro:rIntro, case:rCase, reveal:rReveal, finale:rFinale, result:rResult}[S.screen];
+  const fn = {title:rTitle, intro:rIntro, case:rCase, reveal:rReveal, eighth:rEighth, eighthOk:rEighthOk, finale:rFinale, result:rResult}[S.screen];
   app.innerHTML = fn();
   window.scrollTo({top:0});
 }
 
-function openCase(){ S.screen='case'; S.sel=null; S.cleared=[]; S.caseMisses=0; S.hintOn=false; render(); }
+function resetPick(){ S.sel=null; S.cleared=[]; S.hintOn=false; }
+function openCase(){ S.screen='case'; resetPick(); render(); }
+function wrongPick(){
+  const k = S.sel;
+  S.misses++; S.cleared.push(k); S.sel=null; S.hintOn=true;
+  render();
+  const b = app.querySelector(`[data-w="${k}"]`);
+  if (b) b.classList.add('shake');
+}
+function newGame(hard){ Object.assign(S,{screen:'intro', hard, i:0, misses:0, solved:0}); resetPick(); render(); }
 
 app.addEventListener('click', e => {
   const w = e.target.closest('[data-w]');
   if (w && !w.disabled){
     S.sel = +w.dataset.w;
     app.querySelectorAll('.witness').forEach(b=>b.classList.toggle('sel', b===w));
-    app.querySelector('[data-act="accuse"]').disabled = false;
+    const btn = app.querySelector('[data-act^="accuse"]'); if (btn) btn.disabled = false;
     return;
   }
   const a = e.target.closest('[data-act]');
   if (!a) return;
   switch (a.dataset.act){
-    case 'start': S.screen='intro'; render(); break;
+    case 'start': newGame(a.dataset.mode==='hard'); break;
     case 'toCase': S.i=0; openCase(); break;
-    case 'accuse': {
+    case 'accuse':
       if (S.sel===null) return;
-      const c = CASES[S.i];
-      if (S.sel === c.culprit){ S.solved = S.i+1; S.screen='reveal'; render(); }
-      else {
-        const k = S.sel;
-        S.misses++; S.caseMisses++; S.cleared.push(k); S.sel=null; S.hintOn=true;
-        render();
-        const b = app.querySelector(`[data-w="${k}"]`);
-        if (b){ b.classList.add('shake'); }
-      }
+      if (S.sel === caseOf(S.i).culprit){ S.solved = S.i+1; S.screen='reveal'; render(); }
+      else wrongPick();
       break;
-    }
     case 'next':
       if (S.i < CASES.length-1){ S.i++; openCase(); }
-      else { S.screen='finale'; render(); }
+      else { S.screen='eighth'; resetPick(); render(); }
       break;
+    case 'accuse8':
+      if (S.sel===null) return;
+      if (S.sel === EIGHTH.answer){ S.solved = 8; S.screen='eighthOk'; render(); }
+      else wrongPick();
+      break;
+    case 'finale': S.screen='finale'; render(); break;
     case 'result': S.screen='result'; render(); break;
-    case 'restart': Object.assign(S,{screen:'title', i:0, sel:null, cleared:[], misses:0, caseMisses:0, hintOn:false, solved:0}); render(); break;
+    case 'restartHard': newGame(true); break;
+    case 'restart': Object.assign(S,{screen:'title', hard:false}); render(); break;
   }
 });
 
